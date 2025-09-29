@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { type SignOptions } from "jsonwebtoken";
+import crypto from "crypto";
 
 const Schema = mongoose.Schema;
 
@@ -49,3 +50,14 @@ user.methods.grnerateRefreshToken = function () {
     );
 };
 
+user.methods.generateTempToken = function () {
+    const unHashedToken = crypto.randomBytes(20).toString("hex");
+    const hasedToken = crypto
+            .createHash("sha256")
+            .update(unHashedToken)
+            .digest("hex");
+    const tokenExpiry = Date.now() + (10*60*1000);
+    return { unHashedToken, hasedToken, tokenExpiry };
+}
+
+export const UserModel = mongoose.models.User || mongoose.model("User", user);
