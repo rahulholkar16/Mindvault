@@ -38,3 +38,14 @@ user.methods.generateAccessToken = function () {
     );
 };
 
+user.methods.grnerateRefreshToken = function () {
+    return jwt.sign(
+        {
+            _id: this._id,
+            email: this.email,
+        },
+        process.env.REFRESH_JWT_SECRET!,
+        { expiresIn: process.env.REFRESH_TOKEN_EXPIRY } as SignOptions
+    );
+};
+
