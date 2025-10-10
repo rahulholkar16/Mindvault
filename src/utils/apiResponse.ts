@@ -1,16 +1,16 @@
-interface Response {
+interface IApiResponse <T = any> {
     statusCode: number,
-    data?: any,
+    data?: T,
     message: string,
     success: boolean
 }
 
-class ApiResponse implements Response {
+class ApiResponse <T = any> implements IApiResponse <T> {
     statusCode: number;
-    data: any;
+    data: T;
     message: string;
     success: boolean;
-    constructor (statusCode: number, data: any, message = "success") {
+    constructor (statusCode: number, data: T, message = "success") {
         this.statusCode = statusCode;
         this.data = data;
         this.message = message;
