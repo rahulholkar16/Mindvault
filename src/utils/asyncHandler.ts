@@ -6,8 +6,8 @@ const asyncHandler = (
         res: Response,
         next: NextFunction
     ) => Promise<any>
-) => {
-    return (req: Request, res: Response, next: NextFunction) => {
+): ((req: Request, res: Response, next: NextFunction) => void) => {
+    return (req, res, next) => {
         Promise.resolve(requestHandler(req, res, next)).catch(next);
     };
 };
