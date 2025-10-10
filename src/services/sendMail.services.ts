@@ -1,19 +1,19 @@
 import Mailgen, { type Content } from "mailgen";
-import nodemailer from "nodemailer";
+import nodemailer, { type SendMailOptions, type Transporter } from "nodemailer";
 
-const sendEmail = async (email: string, subject: string, mailgenContent: Content) => {
+const sendEmail = async (email: string, subject: string, mailgenContent: Content): Promise<void> => {
     const mailGenerator = new Mailgen({
         theme: "default",
         product: {
             name: "MINDVAULT",
             link: "http://localhost:3000/"
-        }
+        },
     });
 
     const mailTextual = mailGenerator.generatePlaintext(mailgenContent);
     const mailHtml  = mailGenerator.generate(mailgenContent);
 
-    const transporter = nodemailer.createTransport({
+    const transporter: Transporter = nodemailer.createTransport({
         host: "smtp.gmail.com", // Gmail SMTP host
         port: 465, // 465 for secure, 587 for TLS
         secure: true, // true for port 465, false for 587
@@ -23,7 +23,7 @@ const sendEmail = async (email: string, subject: string, mailgenContent: Content
         },
     });
 
-    const mail = {
+    const mail: SendMailOptions = {
         from: "unknow.user.track@gamil.com",
         to: email,
         subject: subject,
@@ -39,14 +39,13 @@ const sendEmail = async (email: string, subject: string, mailgenContent: Content
     
 }
 
-const emailVerificationContent = (name: string, verificationUrl: string): object => {
+const emailVerificationContent = (name: string, verificationUrl: string): Content => {
     return {
         body: {
             name: name,
             intro: "Welcome to our App! we'are excited to have you on board.",
             action: {
-                instruction:
-                    "To verify your email please click on the following button",
+                instructions: "To verify your email please click on the following button",
                 button: {
                     color: "#11fc11ff",
                     text: "Verify your email",
@@ -58,13 +57,13 @@ const emailVerificationContent = (name: string, verificationUrl: string): object
     };
 };
 
-const forgotPasswordContent = (name: string, passwordResetUrl: string): object => {
+const forgotPasswordContent = (name: string, passwordResetUrl: string): Content => {
     return {
         body: {
             name: name,
             intro: "We got a request to reset the password of your account.",
             action: {
-                instruction:
+                instructions:
                     "To reset your password click on the following button or link",
                 button: {
                     color: "rgba(48, 236, 48, 0.67)",
