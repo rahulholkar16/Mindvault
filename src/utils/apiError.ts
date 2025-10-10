@@ -1,16 +1,16 @@
-interface Errors {
+interface IApiErrors {
     statusCode: number,
     message: string,
     success: boolean,
-    errors: any
+    errors?: unknown
 }
 
-class ApiError extends Error implements Errors  {
+class ApiError extends Error implements IApiErrors  {
     statusCode: number;
     message: string;
     success: boolean;
-    errors: any;
-    constructor ( statusCode: number, message: string = "Something went wrong", errors: any = [], stack: string = "" ) {
+    errors?: unknown;
+    constructor ( statusCode: number, message: string = "Something went wrong", errors?: unknown, stack?: string ) {
         super(message)
         this.statusCode = statusCode;
         this.message = message;
