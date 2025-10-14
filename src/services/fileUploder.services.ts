@@ -21,7 +21,6 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
         } catch (error) {
             attempt++;
             console.warn(`Upload attempt ${attempt} failed. Retrying...`);
-            
             if(attempt >= maxTries) {
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
