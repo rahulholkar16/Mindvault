@@ -10,12 +10,13 @@ const user = new Schema({
     "email": { type: String, unique: true, required: true },
     "password": { type: String, required: true },
     "avatar": { type: String },
+    "content": [{ type: Schema.Types.ObjectId, ref: "Content" }],
     "isVerified": { type: Boolean, default: false },
     "verificationToken": { type: String },
     "verificationTokenExpire": { type: Date },
     "resetPasswordToken": { type: String },
     "resetPasswordTokenExpire": { type: Date },
-    "refershToken": { type: String },
+    "refershToken": { type: String }
 }, {timestamps: true});
 
 user.pre("save", async function (next) {
@@ -60,4 +61,4 @@ user.methods.generateTempToken = function () {
     return { unHashedToken, hasedToken, tokenExpiry };
 }
 
-export const UserModel = mongoose.models.User || mongoose.model("User", user);
+export const UserModel = mongoose.models?.User || mongoose.model("User", user);
