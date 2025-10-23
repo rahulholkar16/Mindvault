@@ -12,8 +12,14 @@ export const auth = asyncHandler(async (req: Request, res: Response, next: NextF
 
     try {
         const decode = jwt.verify(token, process.env.ACCESS_JWT_SECRET!) as JwtPayload;
-        const user: I_UserDocument = await UserModel.findById(decode?._id).exec();
-    } catch (error) {
+        const user = await UserModel.findById(decode?._id).select(
+            "-password -verificationToken -resetPasswordToken -refreshToken"
+        ).exec();
         
+        if(!user) throw new ApiError(401, "Invalid access token");
+        req.user = user;
+        next();
+    } catch (error) {
+        throw new ApiError(401, "Invalid access token");
     }
 })
