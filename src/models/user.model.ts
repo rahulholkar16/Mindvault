@@ -1,11 +1,25 @@
-import mongoose from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { type SignOptions } from "jsonwebtoken";
 import crypto from "crypto";
 
 const Schema = mongoose.Schema;
 
-const user = new Schema({
+export interface I_UserDocument extends mongoose.Document {
+    "name": string,
+    "email": string,
+    "password": string,
+    "avatar"?: string,
+    "content": Types.ObjectId[],
+    "isVerified": boolean,
+    "verificationToken"?: string,
+    "verificationTokenExpire"?: Date,
+    "resetPasswordToken"?: string,
+    "resetPasswordTokenExpire"?: Date,
+    "refershToken"?: string
+};
+
+const user = new Schema<I_UserDocument>({
     "name": { type: String, required: true },
     "email": { type: String, unique: true, required: true },
     "password": { type: String, required: true },
@@ -32,7 +46,7 @@ user.methods.isPasswordCorrect = async function (password: string) {
 user.methods.generateAccessToken = function () {
     return jwt.sign(
         {
-            _id: this._id,
+            _id: this._id as string,
             email: this.email,
         },
         process.env.ACCESS_JWT_SECRET!,
@@ -61,4 +75,4 @@ user.methods.generateTempToken = function () {
     return { unHashedToken, hasedToken, tokenExpiry };
 }
 
-export const UserModel = mongoose.models?.User || mongoose.model("User", user);
+export const UserModel = (mongoose.models?.User as mongoose.Model<I_UserDocument>) || mongoose.model<I_UserDocument>("User", user);
