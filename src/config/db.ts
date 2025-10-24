@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-let isConneted = true;
+let isConneted: boolean = false;
 
 export const connectDB = async () => {
     if (isConneted) return;
