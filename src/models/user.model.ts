@@ -16,7 +16,15 @@ export interface I_UserDocument extends mongoose.Document {
     "verificationTokenExpire"?: Date,
     "resetPasswordToken"?: string,
     "resetPasswordTokenExpire"?: Date,
-    "refershToken"?: string
+    "refershToken"?: string,
+    isPasswordCorrect(password: string): Promise<boolean>;
+    generateAccessToken(): string;
+    generateRefreshToken(): string; // note: typo in your schema
+    generateTempToken(): {
+        unHashedToken: string;
+        hasedToken: string;
+        tokenExpiry: number;
+    };
 };
 
 const user = new Schema<I_UserDocument>({
@@ -30,7 +38,8 @@ const user = new Schema<I_UserDocument>({
     "verificationTokenExpire": { type: Date },
     "resetPasswordToken": { type: String },
     "resetPasswordTokenExpire": { type: Date },
-    "refershToken": { type: String }
+    "refershToken": { type: String },
+
 }, {timestamps: true});
 
 user.pre("save", async function (next) {
@@ -54,7 +63,7 @@ user.methods.generateAccessToken = function () {
     );
 };
 
-user.methods.grnerateRefreshToken = function () {
+user.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id,
