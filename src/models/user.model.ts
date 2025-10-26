@@ -6,6 +6,7 @@ import crypto from "crypto";
 const Schema = mongoose.Schema;
 
 export interface I_UserDocument extends mongoose.Document {
+    "_id": Types.ObjectId,
     "name": string,
     "email": string,
     "password": string,
@@ -23,7 +24,7 @@ export interface I_UserDocument extends mongoose.Document {
     generateTempToken(): {
         unHashedToken: string;
         hasedToken: string;
-        tokenExpiry: number;
+        tokenExpiry: Date;
     };
 };
 
