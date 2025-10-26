@@ -9,6 +9,8 @@ import {
 import { ApiResponse } from "../utils/apiResponse.js";
 import type { Types } from "mongoose";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import type { JwtPayload } from "../types/jwtPayload.js";
 
 const generateAccessAndRefreshToken = async (
     userId: string | Types.ObjectId
@@ -18,7 +20,7 @@ const generateAccessAndRefreshToken = async (
         if (!user) throw new ApiError(404, "User not found");
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
-        user.refershToken = refreshToken;
+        user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
         return { accessToken, refreshToken };
     } catch (error) {
@@ -190,4 +192,42 @@ export const resendEmailVerification = asyncHandler(async (req: Request, res: Re
             "Mail has been sent to your email ID."
         )
     );
-})
+});
+
+export const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
+    const incomingrefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    if(!incomingrefreshToken) throw new ApiError(400, "Unauthorized acces");
+
+    try {
+        const decode = jwt.verify(incomingrefreshToken, process.env.REFRESH_JWT_SECRET as string) as JwtPayload;
+        const user = await UserModel.findById(decode?._id);
+        if (!user) throw new ApiError(401, "Invalid refresh token");
+        if (incomingrefreshToken !== user?.refreshToken) {
+            throw new ApiError(401, "Refresh token is expired");
+        };
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(user._id)
+
+        user.refreshToken = newRefreshToken;
+
+        await user.save({ validateBeforeSave: false });
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken, refreshToken: newRefreshToken },
+                    "Access token refreshed."
+                )
+            );
+    } catch (error) {
+        throw new ApiError(401, "Invalid refresh token.");
+    }
+});
