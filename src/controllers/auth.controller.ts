@@ -8,6 +8,7 @@ import {
 } from "../services/sendMail.services.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import type { Types } from "mongoose";
+import crypto from "crypto";
 
 const generateAccessAndRefreshToken = async (
     userId: string | Types.ObjectId
@@ -137,4 +138,29 @@ export const getCurrentUser = asyncHandler(async (req: Request, res: Response) =
     return res.status(200).json(new ApiResponse(200, req.user, "Current User fetched successfully."));
 });
 
+export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
+    const { verificationToken } = req.params;
+    if (!verificationToken) throw new ApiError(400, "Email verfication token is missing.");
+
+    let hashedToken = crypto.createHash("sha256").update(verificationToken).digest("hex");
+
+    const user = await UserModel.findOne({ verificationToken: hashedToken, verificationTokenExpire: { $gt: Date.now() } });
+    if (!user) throw new ApiError(400, "Token is invalid or expired");
+
+    user.verificationToken = undefined;
+    user.verificationTokenExpire = undefined;
+    user.isVerified = true;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    isEmailVerified: true
+                },
+                "Email is verified"
+            )
+        );
+});
 
