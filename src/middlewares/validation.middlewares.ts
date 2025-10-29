@@ -6,12 +6,13 @@ const UserSchema = z.object({
         .string({ message: "Invalid name!" })
         .trim()
         .min(3, { message: "Name must be at least 3 characters long!" })
-        .max(15, { message: "Name must be at most 15 characters long!" }),
+        .max(15, { message: "Name must be at most 15 characters long!" })
+        .optional(),
 
     email: z.preprocess(
         (val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
         z.email({ message: "Invalid email address" })
-    ),
+    ).optional(),
 
     password: z
         .string()
@@ -27,10 +28,11 @@ const UserSchema = z.object({
         .regex(/[@$!%*?&#]/, {
             message:
                 "Password must contain at least one special character (@, $, !, %, *, ?, &, #)",
-        }),
+        })
+        .optional(),
 });
 
-const ValidationMiddleware = (req: Request<{}, {}, { name: string; email: string; password: string;  }>, res: Response, next: NextFunction) => {
+export const ValidationMiddleware = (req: Request<{}, {}, { name: string; email: string; password: string;  }>, res: Response, next: NextFunction) => {
     const { name, email, password } = req.body;
     const result = UserSchema.safeParse({ name, email, password });
     if (!result.success) {
@@ -39,3 +41,12 @@ const ValidationMiddleware = (req: Request<{}, {}, { name: string; email: string
     req.validateData = result.data;
     next();
 };
+
+export const passwordValidator = (req: Request<{}, {}, { password: string; }>, res: Response, next: NextFunction) => {
+    const { password } = req.body;
+    const result = UserSchema.safeParse({ password });
+    if (!result.success) {
+        return res.status(400).json({ errors: result.error.format() });
+    }
+    next();
+}
