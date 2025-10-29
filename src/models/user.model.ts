@@ -1,4 +1,4 @@
-import mongoose, { Model, Types } from "mongoose";
+import mongoose, { type UpdateQuery, Types } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt, { type SignOptions } from "jsonwebtoken";
 import crypto from "crypto";
@@ -13,11 +13,11 @@ export interface I_UserDocument extends mongoose.Document {
     "avatar"?: string,
     "content": Types.ObjectId[],
     "isVerified": boolean,
-    "verificationToken"?: string,
-    "verificationTokenExpire"?: Date,
+    "verificationToken"?: string | undefined,
+    "verificationTokenExpire"?: Date | undefined,
     "resetPasswordToken"?: string,
-    "resetPasswordTokenExpire"?: Date,
-    "refershToken"?: string,
+    "resetPasswordTokenExpire"?: Date | undefined,
+    "refreshToken"?: string,
     isPasswordCorrect(password: string): Promise<boolean>;
     generateAccessToken(): string;
     generateRefreshToken(): string; // note: typo in your schema
@@ -39,13 +39,22 @@ const user = new Schema<I_UserDocument>({
     "verificationTokenExpire": { type: Date },
     "resetPasswordToken": { type: String },
     "resetPasswordTokenExpire": { type: Date },
-    "refershToken": { type: String },
+    "refreshToken": { type: String },
 
 }, {timestamps: true});
 
 user.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
+
+user.pre("findOneAndUpdate", async function (next) {
+    const update = this.getUpdate() as UpdateQuery<any>;
+
+    if(update && update.password) {
+        this.setUpdate({ ...update, password: await bcrypt.hash(update.password, 10) } )
+    }
     next();
 });
 
