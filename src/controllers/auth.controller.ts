@@ -4,6 +4,7 @@ import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
     emailVerificationContent,
+    forgotPasswordContent,
     sendEmail,
 } from "../services/sendMail.services.js";
 import { ApiResponse } from "../utils/apiResponse.js";
@@ -230,4 +231,30 @@ export const refreshAccessToken = asyncHandler(async (req: Request, res: Respons
     } catch (error) {
         throw new ApiError(401, "Invalid refresh token.");
     }
+});
+
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+
+    if (!user) throw new ApiError(400, "User does not exists");
+
+    const { unHashedToken, hasedToken, tokenExpiry } = user.generateTempToken();
+    user.resetPasswordToken = hasedToken;
+    user.resetPasswordTokenExpire = tokenExpiry;
+
+    await user.save({ validateBeforeSave: false });
+
+    await sendEmail({
+        email: user.email,
+        subject: "Password reset request.",
+        mailgenContent: forgotPasswordContent(
+            user.name,
+            `${process.env.FORGOT_PASSWORD_REDIRECT_URL}/${unHashedToken}`,
+        )
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Password reset mail has been sent on your mail.")
+    );
 });
