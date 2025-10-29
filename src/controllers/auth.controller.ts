@@ -258,3 +258,29 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
         new ApiResponse(200, {}, "Password reset mail has been sent on your mail.")
     );
 });
+
+export const resetForgotPassword = asyncHandler(async (req: Request, res: Response) => {
+    const { resetToken } = req.params;
+    const { password: newPassword } = req.body;
+    if (!resetToken) throw new ApiError(400, "Reset token is missing.")
+
+    let hashedToken = crypto.createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+    
+    const user = await UserModel.findOneAndUpdate(
+        {
+            resetPasswordToken: hashedToken,
+            resetPasswordTokenExpire: { $gt: Date.now() }
+        },
+        {
+            password: newPassword,
+            resetPasswordToken: undefined,
+            resetPasswordTokenExpire: undefined
+        }
+    );
+    if (!user) throw new ApiError(404, "Token is invalid or expired.");
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Password reset successfully.")
+    );
+});
