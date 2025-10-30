@@ -1,7 +1,7 @@
 import Mailgen, { type Content } from "mailgen";
 import nodemailer, { type SendMailOptions, type Transporter } from "nodemailer";
 
-const sendEmail = async (email: string, subject: string, mailgenContent: Content): Promise<void> => {
+const sendEmail = async ({ email, subject, mailgenContent}: {email: string, subject: string, mailgenContent: Mailgen.Content}): Promise<void> => {
     const mailGenerator = new Mailgen({
         theme: "default",
         product: {
