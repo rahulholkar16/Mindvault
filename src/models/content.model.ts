@@ -17,7 +17,6 @@ const content = new Schema<I_Content>({
     tags: [ { type: mongoose.Types.ObjectId, ref: "Tag" } ],
     userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
     isPublic: { type: Boolean, default: false }
-});
+}, {timestamps: true});
 
-export const ContentModel = mongoose.models?.Content || mongoose.model("Content", content);
-
+export const ContentModel = (mongoose.models?.Content as mongoose.Model<I_Content>) || (mongoose.model<I_Content>("Content", content));
