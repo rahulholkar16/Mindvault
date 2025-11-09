@@ -21,3 +21,12 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
         new ApiResponse(200, data, "Content added successfully.")
     );
 });
+
+export const getAllContent = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(400, "Unauthorized Access!");
+    const content = await ContentModel.find({ userId });
+    if (!content) throw new ApiError(404, "Content not found!");
+
+    res.status(200).json( new ApiResponse(200, content, "Data fetched successfully!") );
+});
