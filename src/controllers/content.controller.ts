@@ -18,6 +18,6 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
     });
 
     res.status(200).json(
-        new ApiResponse(200, data, "Content added successfully.");
-    )
+        new ApiResponse(200, data, "Content added successfully.")
+    );
 });
