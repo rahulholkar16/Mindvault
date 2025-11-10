@@ -1,4 +1,4 @@
-import mongoose, { Types, type UpdateQuery } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const Schema = mongoose.Schema;
 
@@ -7,6 +7,7 @@ export interface I_Content extends mongoose.Document {
     "title": string,
     "url"?: string,
     "tags"?: Types.ObjectId[],
+    "type"?: string,
     "userId": Types.ObjectId,
     "isPublic"?: boolean
 };
@@ -15,6 +16,7 @@ const content = new Schema<I_Content>({
     title: { type: String, required: true },
     url: { type: String },
     tags: [ { type: mongoose.Types.ObjectId, ref: "Tag" } ],
+    type: { type: String },
     userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
     isPublic: { type: Boolean, default: false }
 }, {timestamps: true});
