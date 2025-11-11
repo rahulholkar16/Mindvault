@@ -34,5 +34,8 @@ export const getAllContent = asyncHandler(async (req: Request, res: Response) =>
 export const getContentById = asyncHandler(async (req: Request, res: Response) => {
     const { contentId } = req.params;
     if (!contentId) throw new ApiError(400, "Content Id missing!");
-    
+
+    const content = await ContentModel.findById(contentId).populate("userId", "name");
+    if (!content) throw new ApiError(400, "Content not found or Invalid ID.");
+    res.status(200).json( new ApiResponse(200, content, "content fetched siuccessfully!") );
 });
