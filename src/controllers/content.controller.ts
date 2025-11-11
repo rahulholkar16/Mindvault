@@ -39,3 +39,16 @@ export const getContentById = asyncHandler(async (req: Request, res: Response) =
     if (!content) throw new ApiError(400, "Content not found or Invalid ID.");
     res.status(200).json( new ApiResponse(200, content, "content fetched siuccessfully!") );
 });
+
+export const deleteContent = asyncHandler(async (req: Request, res: Response) => {
+    const { contentId } = req.params;
+    const userId = req.user?._id;
+    if (!contentId) throw new ApiError(400, "Content Id is missing!");
+    if (!userId) throw new ApiError(400, "Unauthorized Access!");
+    const content = await ContentModel.deleteOne({
+        contentId,
+        userId
+    });
+
+    res.status(200).json( new ApiResponse(200, content, "Deleted successfully!") );
+});
