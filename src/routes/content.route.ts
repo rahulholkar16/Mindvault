@@ -5,5 +5,5 @@ import { createContent, getAllContent, getContentById } from "../controllers/con
 const router = Router();
 
 router.route("/content").post(auth, createContent);
-router.route('/content').get(auth, getAllContent);
-router.route('/content/:contentId').get(auth, getContentById);
+router.route("/content").get(auth, getAllContent);
+router.route("/content/:contentId").get(auth, getContentById);
