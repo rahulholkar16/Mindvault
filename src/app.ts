@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cookiesParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./routes/user.route.js";
+import contentRouter from "./routes/content.route.js";
+import { errorHandler } from "./middlewares/errorrHandler.middlewares.js";
 
 dotenv.config();
 const app = express();
@@ -17,4 +19,6 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/auth", contentRouter);
+app.use(errorHandler);
 export default app;
