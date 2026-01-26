@@ -6,8 +6,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 export const auth = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const token: string = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
-
+    const token: string = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");    
     if(!token) throw new ApiError(401, "Unauthorized request");
 
     try {
