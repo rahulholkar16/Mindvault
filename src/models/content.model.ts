@@ -6,8 +6,9 @@ export interface I_Content extends mongoose.Document {
     "_id": Types.ObjectId,
     "title": string,
     "url"?: string,
+    "description"?: string,
     "tags"?: Types.ObjectId[],
-    "type"?: "document" | "video" | "tweets" | "link",
+    "type"?: "document" | "video" | "tweets" | "url",
     "userId": Types.ObjectId,
     "isPublic"?: boolean
 };
@@ -17,7 +18,8 @@ const content = new Schema<I_Content>({
     url: { type: String },
     tags: [ { type: mongoose.Types.ObjectId, ref: "Tag" } ],
     type: { type: String },
-    userId: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    description: { type: String },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     isPublic: { type: Boolean, default: false }
 }, {timestamps: true});
 
@@ -47,5 +49,6 @@ content.pre("save", async function (next) {
     this.url = `https://www.youtube.com/embed/${videoId}`;
     next();
 });
+
 
 export const ContentModel = (mongoose.models?.Content as mongoose.Model<I_Content>) || (mongoose.model<I_Content>("Content", content));
