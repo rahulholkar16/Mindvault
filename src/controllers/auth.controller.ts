@@ -91,15 +91,22 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         "-password -verificationToken -resetPasswordToken -refreshToken"
     );
 
-    const options = {
+    const accessCookieOptions = {
         httpOnly: true,
         secure: true,
+        maxAge: 24 * 60 * 60 * 1000
+    };
+    
+    const refreshCookieOptions = {
+        httpOnly: true,
+        secure: true,
+        maxAge: 10 * 24 * 60 * 60 * 1000
     };
 
     return res
         .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, accessCookieOptions)
+        .cookie("refreshToken", refreshToken, refreshCookieOptions)
         .json(
             new ApiResponse(
                 200,
