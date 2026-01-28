@@ -3,7 +3,7 @@ import { connectDB } from "./config/db.js"
 connectDB()
     .then(() => {
         app.listen(process.env.PORT, () => {
-            console.log("Server start at: " + process.env.PORT);
+            console.log("MINDVAULT start at: " + process.env.PORT);
         });
     })
     .catch((err) => {
