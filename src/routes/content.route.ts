@@ -9,3 +9,5 @@ router.route("/content").get(auth, getAllContent);
 router.route("/content/:contentId").get(auth, getContentById);
 router.route("/content/:contentId").get(auth, getContentById);
 router.route("/content/:contentId").delete(auth, deleteContent);
+
+export default router;
