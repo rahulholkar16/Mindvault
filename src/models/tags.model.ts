@@ -1,8 +1,21 @@
-import mongoose, { Types } from "mongoose";
+// import mongoose, { Schema, model, models } from "mongoose";
 
-const Schema = mongoose.Schema;
+// export interface ITag {
+//     tag: string;
+// }
 
-interface I_tags extends mongoose.Document {
-    tag: string,
-    userId: Types.ObjectId;
-}
+// const tagSchema = new Schema<ITag>(
+//     {
+//         tag: {
+//             type: String,
+//             required: true,
+//             unique: true,
+//             trim: true,
+//         },
+//     },
+//     {
+//         timestamps: true,
+//     }
+// );
+
+// export const TagModel = models.Tag || model<ITag>("Tag", tagSchema);
