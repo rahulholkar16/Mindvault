@@ -3,18 +3,38 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ContentModel } from "../models/content.model.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+// import { TagModel } from "../models/tags.model.js";
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
-    const { title, tags, url, type } = req.body;
-    const userId = req.user?._id;
-    if (userId) throw new ApiError(400, "Unauthorized Access.");
-    if (!title && !tags && !url && !type) throw new ApiError(400, "All field are required!");
+    const { title, url, type, description } = req.body; // Add tag after 
+    const userId = req.user?._id;    
+    if (!userId) throw new ApiError(400, "Unauthorized Access.");
     
+    if (!title || !type) throw new ApiError(400, "All field are required!");
+    if (type === "tweets" || type === "video" || type === "url") {
+        if (!url) throw new ApiError(400, "Url is missing!");
+    }
+
+    // const normalized = tags.map((t: string) => t.toLowerCase().trim());
+    // const existingTags = await TagModel.find({
+    //     tag: { $in: normalized }
+    // });
+    // const existingSet = new Set(existingTags.map(t => t.tag));
+    // const newTags = normalized.filter(t => !existingSet.has(t));
+    // if (newTags.length) {
+    //     await TagModel.insertMany(
+    //         newTags.map(t => ({ tag: t })),
+    //         { ordered: false }
+    //     );
+    // }
+
     const data = await ContentModel.create({
         title,
         url,
         type,
-        tags
+        // tags: tagIds,
+        description,
+        userId
     });
 
     res.status(200).json(
@@ -25,7 +45,7 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
 export const getAllContent = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?._id;
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
-    const content = await ContentModel.find({ userId }).populate("userId", "name");
+    const content = await ContentModel.find({ userId }).sort({ createdAt: -1 }).populate("userId", "name");
     if (!content) throw new ApiError(404, "Content not found!");
 
     res.status(200).json( new ApiResponse(200, content, "Data fetched successfully!") );
