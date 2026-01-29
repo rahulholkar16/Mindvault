@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { UserModel } from "../models/user.model.js";
+import { CookieOptions } from "express";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
@@ -91,16 +92,18 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         "-password -verificationToken -resetPasswordToken -refreshToken"
     );
 
-    const accessCookieOptions = {
+    const accessCookieOptions: CookieOptions = {
         httpOnly: true,
-        secure: true,
-        maxAge: 24 * 60 * 60 * 1000
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: "lax"
     };
     
-    const refreshCookieOptions = {
+    const refreshCookieOptions: CookieOptions = {
         httpOnly: true,
-        secure: true,
-        maxAge: 10 * 24 * 60 * 60 * 1000
+        secure: false,
+        maxAge: 10 * 24 * 60 * 60 * 1000,
+        sameSite: "lax"
     };
 
     return res
