@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { UserModel } from "../models/user.model.js";
-import { CookieOptions } from "express";
+import type { CookieOptions } from "express";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
