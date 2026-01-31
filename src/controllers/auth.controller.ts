@@ -13,6 +13,7 @@ import type { Types } from "mongoose";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "../types/jwtPayload.js";
+import { uploadOnCloud } from "../services/fileUploder.services.js";
 
 const generateAccessAndRefreshToken = async (
     userId: string | Types.ObjectId
@@ -35,12 +36,20 @@ const generateAccessAndRefreshToken = async (
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password } = req.validateData;
+    const file = req.file;
+    console.log("Avatar: ", file?.path);
+    
+    if (!file) throw new ApiError(400, "Avatar is Required!");
+
     const isExist = await UserModel.findOne({ email });
     if (isExist) throw new ApiError(409, "User already exists.");
+    const avatar = await uploadOnCloud(file.path);
+    if (!avatar) throw new ApiError(400, "File not upload on cloud!");
     const newUser = await UserModel.create({
         name,
         email,
         password,
+        avatar: avatar.url
     });
     const { unHashedToken, hasedToken, tokenExpiry } =
         newUser.generateTempToken();
