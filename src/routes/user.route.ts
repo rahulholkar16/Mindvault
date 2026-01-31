@@ -16,9 +16,10 @@ import {
     logout,
 } from "../controllers/auth.controller.js";
 import { auth } from "../middlewares/auth.middlewares.js";
+import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
 
-router.route("/register").post(ValidationMiddleware, register);
+router.route("/register").post(upload.single("avatar"), ValidationMiddleware, register);
 router.route("/login").post(login);
 router.route("/logout").delete(auth, logout);
 router.route("/me").get(auth, getCurrentUser);
