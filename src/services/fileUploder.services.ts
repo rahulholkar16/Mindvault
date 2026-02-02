@@ -1,5 +1,4 @@
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
-import { log } from "console";
 import fs from "fs";
 
 cloudinary.config({
@@ -17,7 +16,10 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
             const res: UploadApiResponse = await cloudinary.uploader.upload(filePath, {
                 resource_type: "auto",
             });
-
+            
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
             return res;
         } catch (error) {
             attempt++;
@@ -26,7 +28,6 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
-                console.log("Cloudinary upload failed: ", error);
                 return null;
             }
             await new Promise((resolve) => setTimeout(resolve, 500));
