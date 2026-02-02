@@ -36,9 +36,7 @@ const generateAccessAndRefreshToken = async (
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password } = req.validateData;
-    const file = req.file;
-    console.log("Avatar: ", file?.path);
-    
+    const file = req.file;    
     if (!file) throw new ApiError(400, "Avatar is Required!");
 
     const isExist = await UserModel.findOne({ email });
@@ -51,8 +49,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         password,
         avatar: avatar.url
     });
-    const { unHashedToken, hasedToken, tokenExpiry } =
-        newUser.generateTempToken();
+    const { unHashedToken, hasedToken, tokenExpiry } = newUser.generateTempToken();
     newUser.verificationToken = hasedToken;
     newUser.verificationTokenExpire = tokenExpiry;
     await sendEmail({
