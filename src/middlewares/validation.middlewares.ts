@@ -36,7 +36,7 @@ export const ValidationMiddleware = (req: Request<{}, {}, { name: string; email:
     const { name, email, password } = req.body;
     const result = UserSchema.safeParse({ name, email, password });
     if (!result.success) {
-        return res.status(400).json({ errors: result.error.format() });
+        return res.status(400).json({ errors: z.flattenError(result.error) });
     }
     req.validateData = result.data;
     next();
