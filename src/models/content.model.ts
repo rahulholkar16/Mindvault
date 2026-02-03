@@ -23,15 +23,6 @@ const content = new Schema<I_Content>({
     isPublic: { type: Boolean, default: false }
 }, {timestamps: true});
 
-content.pre("deleteOne", async function (this: I_Content, next) {
-    const userId = this.userId;
-    await mongoose.model("User").updateOne(
-        { _id: userId },
-        { $pull: { content: this._id } }
-    );
-    next();
-});
-
 content.pre("save", async function (next) {
     if (this.type !== "video" || !this.url) return next();
     
