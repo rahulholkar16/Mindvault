@@ -94,10 +94,9 @@ export const deleteContent = asyncHandler(async (req: Request, res: Response) =>
     const userId = req.user?._id;
     if (!contentId) throw new ApiError(400, "Content Id is missing!");
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
-    const content = await ContentModel.deleteOne({
-        contentId,
+    const content = await ContentModel.findOneAndDelete({
+        _id: contentId,
         userId
     });
-
     res.status(200).json( new ApiResponse(200, content, "Deleted successfully!") );
 });
