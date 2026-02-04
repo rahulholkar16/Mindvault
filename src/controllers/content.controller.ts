@@ -45,9 +45,10 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
 export const getAllContent = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?._id;
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
-    const content = await ContentModel.find().sort({ createdAt: -1 }).populate("userId", "name");
+    const content = await ContentModel.find({
+        isPublic: true
+    }).sort({ createdAt: -1 }).populate("userId", "name");
     if (!content) throw new ApiError(404, "Content not found!");
-
     res.status(200).json( new ApiResponse(200, content, "Data fetched successfully!") );
 });
 
@@ -94,6 +95,7 @@ export const deleteContent = asyncHandler(async (req: Request, res: Response) =>
     const userId = req.user?._id;
     if (!contentId) throw new ApiError(400, "Content Id is missing!");
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
+
     const content = await ContentModel.findOneAndDelete({
         _id: contentId,
         userId
@@ -101,6 +103,33 @@ export const deleteContent = asyncHandler(async (req: Request, res: Response) =>
     res.status(200).json( new ApiResponse(200, content, "Deleted successfully!") );
 });
 
+export const toggleNoteVisibility = asyncHandler(async (req: Request, res: Response) => {
+    const  { contentId } = req.params;
+    const userId = req.user?._id;
+    if (!contentId) throw new ApiError(404, "Content Id is requierd!");
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const content = await ContentModel.findOneAndUpdate(
+        {
+            _id: contentId,
+            userId
+        },
+        [{ $set: { isPublic: { $not: "$isPublic" } } }],
+        {
+            new: true,
+        }
+    );
+    if (!content) throw new ApiError(404, "content not found!");   
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            content?.isPublic,
+            content?.isPublic ? "Note is now public" : "Note is now private"
+        )
+    );
+});
+
 // export const Share = asyncHandler(async (req: Request, res: Response) => {
 //     const {  }
-// })
+// });
