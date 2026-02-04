@@ -37,6 +37,8 @@ const generateAccessAndRefreshToken = async (
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
     const { name, email, password } = req.validateData;
+    const { isPublic } = req.body;
+    if (!isPublic) throw new ApiError(404, "Account type requierd!");
     const file = req.file;    
     if (!file) throw new ApiError(400, "Avatar is Required!");
 
@@ -48,7 +50,8 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         name,
         email,
         password,
-        avatar: avatar.url
+        avatar: avatar.url,
+        isPublic
     });
     const { unHashedToken, hasedToken, tokenExpiry } = newUser.generateTempToken();
     newUser.verificationToken = hasedToken;
