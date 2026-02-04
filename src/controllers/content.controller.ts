@@ -5,7 +5,6 @@ import { ContentModel } from "../models/content.model.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { UserModel } from "../models/user.model.js";
 import { ShareModel } from "../models/share.model.js";
-import crypto from "crypto";
 // import { TagModel } from "../models/tags.model.js";
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
@@ -69,7 +68,7 @@ export const getSpecificContent = asyncHandler(async (req: Request, res: Respons
     const { type } = req.params;
     const userId = req.user?._id;
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
-    const content = await ContentModel.find({ type }).sort({ createdAt: -1 }).populate("userId", "name");
+    const content = await ContentModel.find({ type,  }).sort({ createdAt: -1 }).populate("userId", "name");
     if (!content) throw new ApiError(404, "Content not found!");
     res.status(200).json(new ApiResponse(200, content, "Data fetched successfully!"));
 });
