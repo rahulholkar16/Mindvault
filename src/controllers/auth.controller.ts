@@ -51,7 +51,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         email,
         password,
         avatar: avatar.url,
-        isPublic
+        isPublic: isPublic === "false" ? false : true,
     });
     const { unHashedToken, hasedToken, tokenExpiry } = newUser.generateTempToken();
     newUser.verificationToken = hasedToken;
