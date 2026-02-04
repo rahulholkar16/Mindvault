@@ -14,6 +14,7 @@ import {
     resetForgotPassword,
     changeCurrentPassword,
     logout,
+    togglePublic,
 } from "../controllers/auth.controller.js";
 import { auth } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -33,5 +34,6 @@ router
 router
     .route("/changed-password")
     .post(passwordValidator, auth, changeCurrentPassword);
+router.route("/toggle-public").get(auth, togglePublic);
 
 export default router;
