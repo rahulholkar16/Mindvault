@@ -13,6 +13,7 @@ export interface I_UserDocument extends mongoose.Document {
     "avatar"?: string,
     "content": Types.ObjectId[],
     "isVerified": boolean,
+    "isPublic": boolean,
     "verificationToken"?: string | undefined,
     "verificationTokenExpire"?: Date | undefined,
     "resetPasswordToken"?: string,
@@ -20,7 +21,7 @@ export interface I_UserDocument extends mongoose.Document {
     "refreshToken"?: string,
     isPasswordCorrect(password: string): Promise<boolean>;
     generateAccessToken(): string;
-    generateRefreshToken(): string; // note: typo in your schema
+    generateRefreshToken(): string;
     generateTempToken(): {
         unHashedToken: string;
         hasedToken: string;
@@ -40,7 +41,7 @@ const user = new Schema<I_UserDocument>({
     "resetPasswordToken": { type: String },
     "resetPasswordTokenExpire": { type: Date },
     "refreshToken": { type: String },
-
+    "isPublic": { type: Boolean, default: false },
 }, {timestamps: true});
 
 user.pre("save", async function (next) {
