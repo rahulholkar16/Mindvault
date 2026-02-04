@@ -162,3 +162,25 @@ export const createShareLink = asyncHandler(async (req: Request, res: Response) 
         )
     );
 });
+
+export const getSharedBrain = asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.params;
+    if (!token) throw new ApiError(404, "Token is requierd!");
+    const share = await ShareModel.findOne({
+        shareToken: token,
+        isPublic: true,
+    });
+
+    if (!share) {
+        throw new ApiError(404, "Invalid or expired share link");
+    }
+
+    const content = await ContentModel.find({
+        userId: share?.userId,
+        isPublic: true,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, content, "Shared brain fetched")
+    );
+});
