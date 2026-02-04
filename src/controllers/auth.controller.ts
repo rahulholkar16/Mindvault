@@ -321,3 +321,18 @@ export const changeCurrentPassword = asyncHandler(async (req: Request, res: Resp
         )
     );
 });
+
+export const togglePublic = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Request!");
+
+    const user = await UserModel.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+
+    user.isPublic = !user.isPublic;
+    await user.save();
+    
+    return res.status(200).json(
+        new ApiResponse(200, user?.isPublic, user.isPublic ? "User set Public account." : "User set Private account.")
+    )
+});
