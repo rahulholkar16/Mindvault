@@ -3,6 +3,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ContentModel } from "../models/content.model.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { UserModel } from "../models/user.model.js";
+import { ShareModel } from "../models/share.model.js";
+import crypto from "crypto";
 // import { TagModel } from "../models/tags.model.js";
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
@@ -131,6 +134,31 @@ export const toggleNoteVisibility = asyncHandler(async (req: Request, res: Respo
     );
 });
 
-// export const Share = asyncHandler(async (req: Request, res: Response) => {
-//     const {  }
-// });
+export const createShareLink = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const user = await UserModel.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+    if (!user?.isPublic) throw new ApiError(403, "You are private — cannot generate share link");
+
+    let share = await ShareModel.findOne({ userId });
+    if (!share) {
+        const hash = await crypto.randomBytes(16).toString("hex");
+        share = await ShareModel.create({
+            userId,
+            isPublic: true,
+            shareToken: hash
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                shareLink: share?.shareToken,
+            },
+            "Share link generated"
+        )
+    );
+});
