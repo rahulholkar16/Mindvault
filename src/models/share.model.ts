@@ -1,4 +1,4 @@
-import mongoose, { model, models, Types } from "mongoose";
+import mongoose, { model, Types } from "mongoose";
 
 const Schema = mongoose.Schema;
 
@@ -16,5 +16,4 @@ const shareSchema = new Schema<I_Share>({
     timestamps: true
 });
 
-
-export const ShareModel = models.Share || model<I_Share>("Share", shareSchema);
+export const ShareModel = mongoose.models.Share as mongoose.Model<I_Share> || model<I_Share>("Share", shareSchema);
