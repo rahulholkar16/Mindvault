@@ -14,6 +14,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import type { JwtPayload } from "../types/jwtPayload.js";
 import { uploadOnCloud } from "../services/fileUploder.services.js";
+import { ShareModel } from "../models/share.model.js";
 
 const generateAccessAndRefreshToken = async (
     userId: string | Types.ObjectId
@@ -331,8 +332,37 @@ export const togglePublic = asyncHandler(async (req: Request, res: Response) => 
 
     user.isPublic = !user.isPublic;
     await user.save();
-    
+
     return res.status(200).json(
         new ApiResponse(200, user?.isPublic, user.isPublic ? "User set Public account." : "User set Private account.")
     )
+});
+
+export const createShareLink = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const user = await UserModel.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+    if (!user?.isPublic) throw new ApiError(403, "You are private — cannot generate share link");
+
+    let share = await ShareModel.findOne({ userId });
+    if (!share) {
+        const hash = await crypto.randomBytes(16).toString("hex");
+        share = await ShareModel.create({
+            userId,
+            isPublic: true,
+            shareToken: hash
+        });
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                shareLink: share?.shareToken,
+            },
+            "Share link generated"
+        )
+    );
 });

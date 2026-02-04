@@ -134,35 +134,6 @@ export const toggleNoteVisibility = asyncHandler(async (req: Request, res: Respo
     );
 });
 
-export const createShareLink = asyncHandler(async (req: Request, res: Response) => {
-    const userId = req.user?._id;
-    if (!userId) throw new ApiError(401, "Unauthorized Access!");
-
-    const user = await UserModel.findById(userId);
-    if (!user) throw new ApiError(404, "User not found");
-    if (!user?.isPublic) throw new ApiError(403, "You are private — cannot generate share link");
-
-    let share = await ShareModel.findOne({ userId });
-    if (!share) {
-        const hash = await crypto.randomBytes(16).toString("hex");
-        share = await ShareModel.create({
-            userId,
-            isPublic: true,
-            shareToken: hash
-        });
-    }
-
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                shareLink: share?.shareToken,
-            },
-            "Share link generated"
-        )
-    );
-});
-
 export const getSharedBrain = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params;
     if (!token) throw new ApiError(404, "Token is requierd!");
