@@ -6,11 +6,11 @@ import { ApiResponse } from "../utils/apiResponse.js";
 // import { TagModel } from "../models/tags.model.js";
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
-    const { title, url, type, description } = req.body; // Add tag after 
+    const { title, url, type, description, isPublic } = req.body; // Add tag after 
     const userId = req.user?._id;    
     if (!userId) throw new ApiError(400, "Unauthorized Access.");
     
-    if (!title || !type) throw new ApiError(400, "All field are required!");
+    if (!title || !type || !description || !isPublic) throw new ApiError(400, "All field are required!");
     if (type === "tweets" || type === "video" || type === "url") {
         if (!url) throw new ApiError(400, "Url is missing!");
     }
@@ -34,7 +34,8 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
         type,
         // tags: tagIds,
         description,
-        userId
+        userId,
+        isPublic
     });
 
     res.status(200).json(
