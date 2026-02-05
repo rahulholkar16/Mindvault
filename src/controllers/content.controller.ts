@@ -68,7 +68,7 @@ export const getSpecificContent = asyncHandler(async (req: Request, res: Respons
     const { type } = req.params;
     const userId = req.user?._id;
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
-    const content = await ContentModel.find({ type,  }).sort({ createdAt: -1 }).populate("userId", "name");
+    const content = await ContentModel.find({ type, isPublic: true }).sort({ createdAt: -1 }).populate("userId", "name");
     if (!content) throw new ApiError(404, "Content not found!");
     res.status(200).json(new ApiResponse(200, content, "Data fetched successfully!"));
 });
