@@ -12,7 +12,7 @@ export const createContent = asyncHandler(async (req: Request, res: Response) =>
     const userId = req.user?._id;    
     if (!userId) throw new ApiError(400, "Unauthorized Access.");
     
-    if (!title || !type || !description || !isPublic) throw new ApiError(400, "All field are required!");
+    if (!title || !type || !description) throw new ApiError(400, "All field are required!");
     if (type === "tweets" || type === "video" || type === "url") {
         if (!url) throw new ApiError(400, "Url is missing!");
     }
@@ -136,14 +136,13 @@ export const toggleNoteVisibility = asyncHandler(async (req: Request, res: Respo
 export const getSharedBrain = asyncHandler(async (req: Request, res: Response) => {
     const { token } = req.params;
     if (!token) throw new ApiError(404, "Token is requierd!");
-    const share = await ShareModel.findOne({
-        shareToken: token,
-        isPublic: true,
-    });
-
+    const share = await ShareModel.findOne({ shareToken: token });    
     if (!share) {
         throw new ApiError(404, "Invalid or expired share link");
     }
+
+    const user = await UserModel.findById(share?.userId);
+    if (!user) throw new ApiError(404, "Invalid share User");
 
     const content = await ContentModel.find({
         userId: share?.userId,
@@ -151,6 +150,6 @@ export const getSharedBrain = asyncHandler(async (req: Request, res: Response) =
     });
 
     return res.status(200).json(
-        new ApiResponse(200, content, "Shared brain fetched")
+        new ApiResponse(200, {user, content}, "Shared brain fetched")
     );
 });
