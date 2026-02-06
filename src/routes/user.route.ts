@@ -16,6 +16,8 @@ import {
     logout,
     togglePublic,
     createShareLink,
+    changeName,
+    changeEmail,
 } from "../controllers/auth.controller.js";
 import { auth } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -37,4 +39,6 @@ router
     .post(passwordValidator, auth, changeCurrentPassword);
 router.route("/toggle-public").get(auth, togglePublic);
 router.route("/share-link").get(auth, createShareLink);
+router.route("/change-name").post(ValidationMiddleware, auth, changeName);
+router.route("/change-email").post(ValidationMiddleware, auth, changeEmail);
 export default router;
