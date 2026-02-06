@@ -369,3 +369,31 @@ export const createShareLink = asyncHandler(async (req: Request, res: Response) 
         )
     );
 });
+
+export const changeName = asyncHandler(async (req:Request, res: Response) => {
+    const { name: newName } = req.validateData;
+    if (!newName) throw new ApiError(404, 'Name is requierd!');
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const user = await UserModel.findByIdAndUpdate(userId, { name: newName }, { new: true });
+    if (!user) throw new ApiError(404, "User not found");
+
+    res.json(
+        new ApiResponse(200, user, "Name is successfully updated!")
+    );
+});
+
+export const changeEmail = asyncHandler(async (req:Request, res: Response) => {
+    const { email: newEmail } = req.validateData;
+    if (!newEmail) throw new ApiError(404, 'Name is requierd!');
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const user = await UserModel.findByIdAndUpdate(userId, { email: newEmail }, { new: true });
+    if (!user) throw new ApiError(404, "User not found");
+
+    res.json(
+        new ApiResponse(200, user, "Email is successfully updated!")
+    );
+});
