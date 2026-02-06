@@ -7,7 +7,10 @@ cloudinary.config({
     api_secret: process.env.CLOUD_API_SECRET as string
 });
 
-export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<UploadApiResponse | null> => {
+export const uploadOnCloud = async (
+    filePath: string,
+    maxTries = 3
+): Promise<UploadApiResponse | null> => {
     if (!filePath) return null;
     let attempt = 0;
 
@@ -15,8 +18,13 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
         try {
             const res: UploadApiResponse = await cloudinary.uploader.upload(filePath, {
                 resource_type: "auto",
+                transformation: [
+                    { width: 400, crop: "scale" }, 
+                    { quality: "auto" },           
+                    { fetch_format: "auto" },   
+                ],
             });
-            
+
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
@@ -24,7 +32,8 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
         } catch (error) {
             attempt++;
             console.log(`Upload attempt ${attempt} failed. Retrying...`);
-            if(attempt >= maxTries) {
+
+            if (attempt >= maxTries) {
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
@@ -33,6 +42,6 @@ export const uploadOnCloud = async (filePath: string, maxTries = 3): Promise<Upl
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
     }
-    
+
     return null;
 };
