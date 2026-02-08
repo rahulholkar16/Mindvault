@@ -1,15 +1,19 @@
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
 
-export default async function handler(req, res) {
+export default async function handler(
+    req: VercelRequest,
+    res: VercelResponse
+) {
     try {
-        await connectDB(); // ensure DB is connected
+        await connectDB();
         return app(req, res);
-    } catch (err) {
+    } catch (err: any) {
         return res.status(500).json({
             success: false,
             message: "Database connection failed",
-            error: err.message,
+            error: err?.message || "Unknown error",
         });
     }
 }
