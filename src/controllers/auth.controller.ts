@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { UserModel } from "../models/user.model.js";
 import type { CookieOptions } from "express";
+import fs from "fs";
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {
@@ -46,7 +47,12 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     const isExist = await UserModel.findOne({ email });
     if (isExist) throw new ApiError(409, "User already exists.");
     const avatar = await uploadOnCloud(file.path);
-    if (!avatar) throw new ApiError(400, "File not upload on cloud!");
+    if (!avatar) {
+        if (fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+        }
+        throw new ApiError(400, "File not upload on cloud!");
+    }
     const newUser = await UserModel.create({
         name,
         email,
