@@ -61,9 +61,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         subject: "Plesase verify your email.",
         mailgenContent: emailVerificationContent(
             newUser.name,
-            `${req.protocol}://${req.get(
-                "host"
-            )}/api/vi/user/verify-email/${unHashedToken}`
+            `${process.env.CORS_ORIGIN}/verify-user/${unHashedToken}`
         ),
     });
     const data = await UserModel.findById(newUser._id).select(
@@ -202,7 +200,7 @@ export const resendEmailVerification = asyncHandler(async (req: Request, res: Re
         subject: "Please verify your email.",
         mailgenContent: emailVerificationContent(
             user?.name,
-            `${req.protocol}://${req.get("host")}/api/v1/user/verify-email/${unHashedToken}`
+            `${process.env.CORS_ORIGIN}/verify-user/${unHashedToken}`
         )
     });
 
@@ -253,7 +251,7 @@ export const refreshAccessToken = asyncHandler(async (req: Request, res: Respons
     }
 });
 
-export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+export const forgotPasswordEmail = asyncHandler(async (req: Request, res: Response) => {
     const { email } = req.body;
     const user = await UserModel.findOne({ email });
 
@@ -306,7 +304,8 @@ export const resetForgotPassword = asyncHandler(async (req: Request, res: Respon
 });
 
 export const changeCurrentPassword = asyncHandler(async (req: Request, res: Response) => {
-    const { oldPassword, password: newPassword } = req.body;
+    const { oldPassword } = req.body;
+    const { password: newPassword } = req.validateData;
     const user = await UserModel.findById(req.user?._id);
     if (!user) throw new ApiError(400, "User not found.");
     const isPasswordValid = await user?.isPasswordCorrect(oldPassword);
@@ -337,7 +336,7 @@ export const togglePublic = asyncHandler(async (req: Request, res: Response) => 
     await user.save();
 
     return res.status(200).json(
-        new ApiResponse(200, user?.isPublic, user.isPublic ? "User set Public account." : "User set Private account.")
+        new ApiResponse(200, user, user.isPublic ? "User set Public account." : "User set Private account.")
     )
 });
 
@@ -395,5 +394,25 @@ export const changeEmail = asyncHandler(async (req:Request, res: Response) => {
 
     res.json(
         new ApiResponse(200, user, "Email is successfully updated!")
+    );
+});
+
+export const changeAvatar = asyncHandler(async (req: Request, res: Response) => {
+    const file = req.file;
+    if (!file) throw new ApiError(404, "Avatar is Required!");
+    const userId = req.user?._id;
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    const avatar = await uploadOnCloud(file.path);
+    if (!avatar) throw new ApiError(400, "File not upload on cloud!");
+
+    const user = await UserModel.findByIdAndUpdate(userId, {
+        avatar: avatar.url
+    }, {new: true});
+
+    if (!user) throw new ApiError(404, "User Not found!");
+
+    return  res.json(
+        new ApiResponse(200, user, "Avatar update successfully.")
     );
 });
