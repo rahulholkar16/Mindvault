@@ -46,7 +46,8 @@ export const passwordValidator = (req: Request<{}, {}, { password: string; }>, r
     const { password } = req.body;
     const result = UserSchema.safeParse({ password });
     if (!result.success) {
-        return res.status(400).json({ errors: result.error.format() });
+        return res.status(400).json({ errors: z.flattenError(result.error) });
     }
+    req.validateData = result.data
     next();
 }
