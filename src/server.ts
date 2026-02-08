@@ -1,16 +1,15 @@
-import dotenv from "dotenv";
-import "dotenv/config";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
 
-dotenv.config();
-connectDB()
-    .then(() => {
-        app.listen(process.env.PORT, () => {
-            console.log("MINDVAULT start at: " + process.env.PORT);
+export default async function handler(req, res) {
+    try {
+        await connectDB(); // ensure DB is connected
+        return app(req, res);
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Database connection failed",
+            error: err.message,
         });
-    })
-    .catch((err) => {
-        console.error("MongoDB connection error: ", err);
-        process.exit(1);
-    });
+    }
+}
