@@ -3,11 +3,10 @@ import mongoose from "mongoose";
 let isConneted: boolean = false;
 
 export const connectDB = async () => {
-    console.log("Mongo_URL: ", "mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN");
     
     if (isConneted) return;
     try {
-        const db = await mongoose.connect("mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN", {
+        const db = await mongoose.connect(process.env.DB_URL!, {
             serverSelectionTimeoutMS: 30000,
         });
         isConneted = db.connection.readyState === 1;
