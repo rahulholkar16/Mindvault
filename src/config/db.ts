@@ -7,7 +7,7 @@ export const connectDB = async () => {
     
     if (isConneted) return;
     try {
-        const db = await mongoose.connect(process.env.DB_URL!, {
+        const db = await mongoose.connect("mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN", {
             serverSelectionTimeoutMS: 30000,
         });
         isConneted = db.connection.readyState === 1;
