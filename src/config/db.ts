@@ -1,21 +1,31 @@
 import mongoose from "mongoose";
-let isConneted: boolean = false;
+
+mongoose.set("bufferCommands", false); // 🔥 VERY IMPORTANT FOR VERCEL
+
+let isConnected = false;
 
 export const connectDB = async () => {
-    
-    if (isConneted) return;
+    if (isConnected) {
+        console.log("♻️ Mongo already connected (cached)");
+        return;
+    }
+
     try {
-        const db = await mongoose.connect("mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN", {
-            serverSelectionTimeoutMS: 30000,
-        });
-        isConneted = db.connection.readyState === 1;
-        console.log("✅ MongoDB connected");
-    } catch (error) {
-        if (error instanceof Error) {
-            console.error("❌ MongoDB error:", error.message);
-        } else {
-            console.error("❌ MongoDB error:", error);
-        }
-        process.exit(1);
+        console.log("⏳ Connecting to Mongo...");
+
+        const db = await mongoose.connect(
+            process.env.MONGO_URI ||
+            "mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN",
+            {
+                serverSelectionTimeoutMS: 10000,
+                maxPoolSize: 5,
+            }
+        );
+
+        isConnected = db.connection.readyState === 1;
+        console.log("✅ MongoDB connected successfully!");
+    } catch (error: any) {
+        console.error("❌ MongoDB Connection Error:", error.message);
+        throw error; // <-- DO NOT EXIT PROCESS
     }
 };
