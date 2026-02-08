@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-// import { UserModel } from "./user.model.js";
+import { UserModel } from "./user.model.js";
 
 const Schema = mongoose.Schema;
 
