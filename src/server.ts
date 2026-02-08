@@ -8,7 +8,7 @@ export default async function handler(
 ) {
     try {
         await connectDB();
-        return app(req, res);
+        app(req, res);
     } catch (err: any) {
         return res.status(500).json({
             success: false,
