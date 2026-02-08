@@ -19,6 +19,8 @@ import {
     changeEmail,
     changeAvatar,
     forgotPasswordEmail,
+    followUser,
+    unfollowUser,
 } from "../controllers/auth.controller.js";
 import { auth } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -43,4 +45,7 @@ router.route("/share-link").get(auth, createShareLink);
 router.route("/change-name").post(ValidationMiddleware, auth, changeName);
 router.route("/change-email").post(ValidationMiddleware, auth, changeEmail);
 router.route("/change-avatar").post(auth, upload.single("avatar"), changeAvatar);
+router.post("/follow/:targetUserId", auth, followUser);
+router.post("/unfollow/:targetUserId", auth, unfollowUser);
+
 export default router;
