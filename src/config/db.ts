@@ -5,7 +5,9 @@ let isConneted: boolean = false;
 export const connectDB = async () => {
     if (isConneted) return;
     try {
-        const db = await mongoose.connect(process.env.DB_URL!);
+        const db = await mongoose.connect(process.env.DB_URL!, {
+            serverSelectionTimeoutMS: 30000,
+        });
         isConneted = db.connection.readyState === 1;
         console.log("✅ MongoDB connected");
     } catch (error) {
