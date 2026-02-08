@@ -7,7 +7,7 @@ let isConnected = false;
 export const connectDB = async () => {
     if (isConnected) {
         console.log("♻️ Mongo already connected (cached)");
-        return;
+        return mongoose.connection;   // 👈 ADD THIS
     }
 
     try {
@@ -24,8 +24,10 @@ export const connectDB = async () => {
 
         isConnected = db.connection.readyState === 1;
         console.log("✅ MongoDB connected successfully!");
+        return db.connection;   // 👈 ADD THIS
     } catch (error: any) {
         console.error("❌ MongoDB Connection Error:", error.message);
-        throw error; // <-- DO NOT EXIT PROCESS
+        throw error;
     }
 };
+
