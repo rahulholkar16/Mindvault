@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 let isConneted: boolean = false;
 
 export const connectDB = async () => {
-    console.log("Mongo_URL: ", process.env.DB_URL!);
+    console.log("Mongo_URL: ", "mongodb+srv://tech16:Rahul%231819@cluster0.ovgz62a.mongodb.net/SECOUNDBRAIN");
     
     if (isConneted) return;
     try {
