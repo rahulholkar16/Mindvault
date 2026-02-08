@@ -15,6 +15,7 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload } from "../types/jwtPayload.js";
 import { uploadOnCloud } from "../services/fileUploder.services.js";
 import { ShareModel } from "../models/share.model.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (
     userId: string | Types.ObjectId
@@ -414,5 +415,79 @@ export const changeAvatar = asyncHandler(async (req: Request, res: Response) => 
 
     return  res.json(
         new ApiResponse(200, user, "Avatar update successfully.")
+    );
+});
+
+export const followUser = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { targetUserId } = req.params;
+
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    if (!targetUserId) throw new ApiError(400, "Target user id is required!");
+
+    if (userId.toString() === targetUserId) {
+        throw new ApiError(400, "You cannot follow yourself!");
+    }
+
+    const user = await UserModel.findById(userId);
+    const targetUser = await UserModel.findById(targetUserId);
+
+    if (!user || !targetUser) throw new ApiError(404, "User not found!");
+    const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
+    // Already following?
+    if (user.followingUsers?.includes(targetObjectId)) {
+        throw new ApiError(400, "You are already following this user!");
+    }
+
+    await UserModel.findByIdAndUpdate(userId, {
+        $push: { followingUsers: targetUserId },
+        $inc: { following: 1 },
+    });
+
+    await UserModel.findByIdAndUpdate(targetUserId, {
+        $push: { followers: userId },
+        $inc: { follower: 1 },
+    });
+
+    return res.json(
+        new ApiResponse(200, null, "Followed user successfully.")
+    );
+});
+
+export const unfollowUser = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { targetUserId } = req.params;
+
+    if (!userId) throw new ApiError(401, "Unauthorized Access!");
+
+    if (!targetUserId) throw new ApiError(400, "Target user id is required!");
+
+    if (userId.toString() === targetUserId) {
+        throw new ApiError(400, "You cannot unfollow yourself!");
+    }
+
+    const user = await UserModel.findById(userId);
+    const targetUser = await UserModel.findById(targetUserId);
+
+    if (!user || !targetUser) throw new ApiError(404, "User not found!");
+    const targetObjectId = new mongoose.Types.ObjectId(targetUserId);
+    // Not following?
+    if (!user.followingUsers?.includes(targetObjectId)) {
+        throw new ApiError(400, "You are not following this user!");
+    }
+
+    await UserModel.findByIdAndUpdate(userId, {
+        $pull: { followingUsers: targetUserId },
+        $inc: { following: -1 },
+    });
+
+    await UserModel.findByIdAndUpdate(targetUserId, {
+        $pull: { followers: userId },
+        $inc: { follower: -1 },
+    });
+
+    return res.json(
+        new ApiResponse(200, null, "Unfollowed user successfully.")
     );
 });
