@@ -42,13 +42,13 @@ content.pre("save", async function (next) {
     next();
 });
 
-// content.post("save", async function () {
-//     const contentId = this._id;
-//     const userId = this.userId;
-//     await UserModel.findByIdAndUpdate(userId, {
-//         $push: { content: contentId}
-//     });
-// });
+content.post("save", async function () {
+    const contentId = this._id;
+    const userId = this.userId;
+    await UserModel.findByIdAndUpdate(userId, {
+        $push: { content: contentId}
+    });
+});
 
 
 export const ContentModel = (mongoose.models?.Content as mongoose.Model<I_Content>) || (mongoose.model<I_Content>("Content", content));
