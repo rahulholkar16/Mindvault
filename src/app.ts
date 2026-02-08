@@ -17,6 +17,11 @@ app.use(cors({
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
+app.get('/', (req, res) => {
+    res.json({
+        msg: "Welcome!!"
+    })
+});
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/auth", contentRouter);
 app.use(errorHandler);
