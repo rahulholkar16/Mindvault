@@ -103,16 +103,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
     const accessCookieOptions: CookieOptions = {
         httpOnly: true,
-        secure: false,
+        secure: true,
         maxAge: 24 * 60 * 60 * 1000,
-        sameSite: "lax"
+        sameSite: "none"
     };
     
     const refreshCookieOptions: CookieOptions = {
         httpOnly: true,
-        secure: false,
+        secure: true,
         maxAge: 10 * 24 * 60 * 60 * 1000,
-        sameSite: "lax"
+        sameSite: "none"
     };
 
     return res
@@ -440,10 +440,10 @@ export const followUser = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(400, "You are already following this user!");
     }
 
-    await UserModel.findByIdAndUpdate(userId, {
+    const newUser = await UserModel.findByIdAndUpdate(userId, {
         $push: { followingUsers: targetUserId },
         $inc: { following: 1 },
-    });
+    }, {new: true});
 
     await UserModel.findByIdAndUpdate(targetUserId, {
         $push: { followers: userId },
@@ -451,7 +451,7 @@ export const followUser = asyncHandler(async (req: Request, res: Response) => {
     });
 
     return res.json(
-        new ApiResponse(200, null, "Followed user successfully.")
+        new ApiResponse(200, newUser, "Followed user successfully.")
     );
 });
 
@@ -477,7 +477,7 @@ export const unfollowUser = asyncHandler(async (req: Request, res: Response) => 
         throw new ApiError(400, "You are not following this user!");
     }
 
-    await UserModel.findByIdAndUpdate(userId, {
+    const newUser = await UserModel.findByIdAndUpdate(userId, {
         $pull: { followingUsers: targetUserId },
         $inc: { following: -1 },
     });
@@ -488,6 +488,6 @@ export const unfollowUser = asyncHandler(async (req: Request, res: Response) => 
     });
 
     return res.json(
-        new ApiResponse(200, null, "Unfollowed user successfully.")
+        new ApiResponse(200, newUser, "Unfollowed user successfully.")
     );
 });
