@@ -1,4 +1,5 @@
 import mongoose, { Types } from "mongoose";
+import { UserModel } from "./user.model.js";
 
 const Schema = mongoose.Schema;
 
@@ -39,6 +40,14 @@ content.pre("save", async function (next) {
 
     this.url = `https://www.youtube.com/embed/${videoId}`;
     next();
+});
+
+content.post("save", async function () {
+    const contentId = this._id;
+    const userId = this.userId;
+    await UserModel.findByIdAndUpdate(userId, {
+        $push: { content: contentId}
+    });
 });
 
 
