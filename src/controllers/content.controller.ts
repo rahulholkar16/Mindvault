@@ -9,7 +9,9 @@ import { ShareModel } from "../models/share.model.js";
 
 export const createContent = asyncHandler(async (req: Request, res: Response) => {
     const { title, url, type, description, isPublic } = req.body; // Add tag after 
-    const userId = req.user?._id;    
+    const userId = req.user?._id;  
+    const isVerified = req.user?.isVerified;
+    if (!isVerified) throw new ApiError(401, "Pls verify your email.");  
     if (!userId) throw new ApiError(400, "Unauthorized Access.");
     
     if (!title || !type || !description) throw new ApiError(400, "All field are required!");
@@ -74,9 +76,7 @@ export const getSpecificContent = asyncHandler(async (req: Request, res: Respons
 });
 
 export const getSpecificContentMe = asyncHandler(async (req: Request, res: Response) => {
-    const { type } = req.params;
-    console.log(type);
-    
+    const { type } = req.params;    
     const userId = req.user?._id;
     if (!userId) throw new ApiError(400, "Unauthorized Access!");
     const content = await ContentModel.find({ type, userId }).sort({ createdAt: -1 }).populate("userId", "name");
@@ -86,9 +86,13 @@ export const getSpecificContentMe = asyncHandler(async (req: Request, res: Respo
 
 export const getContentById = asyncHandler(async (req: Request, res: Response) => {
     const { contentId } = req.params;
+    console.log(contentId);
+
     if (!contentId) throw new ApiError(400, "Content Id missing!");
 
     const content = await ContentModel.findById(contentId).populate("userId", "name");
+    console.log("Content: ", content)
+    
     if (!content) throw new ApiError(400, "Content not found or Invalid ID.");
     res.status(200).json( new ApiResponse(200, content, "content fetched siuccessfully!") );
 });
