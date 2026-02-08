@@ -7,7 +7,9 @@ export default async function handler(
     res: VercelResponse
 ) {
     try {
+        console.log("🔥 Handler started");
         await connectDB();
+        console.log("✅ Mongo connected inside handler");
         return app(req, res);
     } catch (err: any) {
         return res.status(500).json({
