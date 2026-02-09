@@ -63,6 +63,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     const { unHashedToken, hasedToken, tokenExpiry } = newUser.generateTempToken();
     newUser.verificationToken = hasedToken;
     newUser.verificationTokenExpire = tokenExpiry;
+    await newUser.save();
     await sendEmail({
         email: newUser.email,
         subject: "Plesase verify your email.",
@@ -170,6 +171,7 @@ export const getCurrentUser = asyncHandler(async (req: Request, res: Response) =
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     const { verificationToken } = req.params;
     if (!verificationToken) throw new ApiError(400, "Email verfication token is missing.");
+    console.log(verificationToken);
 
     let hashedToken = crypto.createHash("sha256").update(verificationToken).digest("hex");
 
