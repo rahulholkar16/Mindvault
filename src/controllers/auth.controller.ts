@@ -150,12 +150,11 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
             new: true,
         },
     );
-
-    const options = {
+    const options: CookieOptions = {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        path: "/"
+        path: "/",
     };
 
     return res.status(200)
