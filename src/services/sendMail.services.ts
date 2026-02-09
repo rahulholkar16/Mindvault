@@ -1,41 +1,42 @@
 import Mailgen, { type Content } from "mailgen";
-import nodemailer, { type SendMailOptions, type Transporter } from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-const sendEmail = async ({ email, subject, mailgenContent}: {email: string, subject: string, mailgenContent: Mailgen.Content}): Promise<void> => {
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+
+const sendEmail = async ({
+    email,
+    subject,
+    mailgenContent,
+}: {
+    email: string;
+    subject: string;
+    mailgenContent: Mailgen.Content;
+}): Promise<void> => {
     const mailGenerator = new Mailgen({
         theme: "default",
         product: {
             name: "MINDVAULT",
-            link: "http://localhost:3000/"
+            link: process.env.CORS_ORIGIN || "https://mindvault-kappa.vercel.app",
         },
     });
 
-    const mailTextual = mailGenerator.generatePlaintext(mailgenContent);
-    const mailHtml  = mailGenerator.generate(mailgenContent);
-
-    const transporter: Transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER, // Your email
-            pass: process.env.EMAIL_PASS, // App password (not your normal Gmail password)
-        },
-    });
-
-    const mail: SendMailOptions = {
-        from: "unknow.user.track@gamil.com",
-        to: email,
-        subject: subject,
-        text: mailTextual,
-        html: mailHtml,
-    };
+    const mailHtml = mailGenerator.generate(mailgenContent);
 
     try {
-        await transporter.sendMail(mail);
+        await sgMail.send({
+            to: email,
+            from: "no-reply@mindvault.com",   // change to your verified sender
+            subject,
+            html: mailHtml,
+        });
+
+        console.log("✅ Email sent via SendGrid to:", email);
     } catch (error) {
-        console.error("Email Service faild: ", error);
+        console.error("❌ SendGrid Email failed:", error);
+        throw error;
     }
-    
-}
+};
+
 
 const emailVerificationContent = (name: string, verificationUrl: string): Content => {
     return {
