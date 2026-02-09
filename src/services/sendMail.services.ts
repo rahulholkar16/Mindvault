@@ -24,10 +24,10 @@ const sendEmail = async ({
 
     try {
         await sgMail.send({
-            to: email,
-            from: "unknown.user.tracker@gmail.com",   // change to your verified sender
-            subject,
-            html: mailHtml,
+            to: "usefulltech1819@gmail.com",
+            from: "MindVault <unknown.user.tracker@gmail.com>",
+            subject: "SendGrid Test",
+            text: "If you get this, SendGrid is working 🎉",
         });
 
         console.log("✅ Email sent via SendGrid to:", email);
