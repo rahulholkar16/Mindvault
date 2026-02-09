@@ -25,7 +25,7 @@ const sendEmail = async ({
     try {
         await sgMail.send({
             to: email,
-            from: "no-reply@mindvault.com",   // change to your verified sender
+            from: "unknown.user.tracker@gmail.com",   // change to your verified sender
             subject,
             html: mailHtml,
         });
