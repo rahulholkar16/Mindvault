@@ -1,7 +1,7 @@
 import Mailgen, { type Content } from "mailgen";
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 const sendEmail = async ({
     email,
@@ -23,20 +23,16 @@ const sendEmail = async ({
     const mailHtml = mailGenerator.generate(mailgenContent);
 
     try {
-        const { data, error } = await resend.emails.send({
-            from: process.env.RESEND_FROM_EMAIL || "MindVault <onboarding@resend.dev>",
+        await sgMail.send({
             to: email,
+            from: "MindVault <unknown.user.tracker@gmail.com>", // VERIFIED SENDER
             subject,
             html: mailHtml,
         });
 
-        if (error) {
-            throw error;
-        }
-
-        console.log("✅ Email sent via Resend to:", email, data?.id);
+        console.log("✅ Email sent via SendGrid to:", email);
     } catch (error) {
-        console.error("❌ Resend Email failed:", error);
+        console.error("❌ SendGrid Email failed:", error);
         throw error;
     }
 };
