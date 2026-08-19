@@ -1,7 +1,13 @@
 import Mailgen, { type Content } from "mailgen";
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 const sendEmail = async ({
     email,
@@ -23,16 +29,16 @@ const sendEmail = async ({
     const mailHtml = mailGenerator.generate(mailgenContent);
 
     try {
-        await sgMail.send({
+        await transporter.sendMail({
+            from: `"MindVault" <${process.env.GMAIL_USER}>`,
             to: email,
-            from: "MindVault <unknown.user.tracker@gmail.com>", // VERIFIED SENDER
             subject,
             html: mailHtml,
         });
 
-        console.log("✅ Email sent via SendGrid to:", email);
+        console.log("✅ Email sent via Gmail to:", email);
     } catch (error) {
-        console.error("❌ SendGrid Email failed:", error);
+        console.error("❌ Gmail Email failed:", error);
         throw error;
     }
 };
