@@ -1,13 +1,7 @@
 import Mailgen, { type Content } from "mailgen";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async ({
     email,
@@ -29,16 +23,20 @@ const sendEmail = async ({
     const mailHtml = mailGenerator.generate(mailgenContent);
 
     try {
-        await transporter.sendMail({
-            from: `"MindVault" <${process.env.GMAIL_USER}>`,
+        const { data, error } = await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || "MindVault <onboarding@resend.dev>",
             to: email,
             subject,
             html: mailHtml,
         });
 
-        console.log("✅ Email sent via Gmail to:", email);
+        if (error) {
+            throw error;
+        }
+
+        console.log("✅ Email sent via Resend to:", email, data?.id);
     } catch (error) {
-        console.error("❌ Gmail Email failed:", error);
+        console.error("❌ Resend Email failed:", error);
         throw error;
     }
 };
