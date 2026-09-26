@@ -6,7 +6,6 @@ import { connectDB } from "./config/db.js"
 dotenv.config();
 connectDB()
     .then(() => {
-    
         app.listen(process.env.PORT, () => {
             console.log("MINDVAULT start at: " + process.env.PORT);
         });

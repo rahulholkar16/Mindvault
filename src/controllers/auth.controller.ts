@@ -47,7 +47,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     const isExist = await UserModel.findOne({ email });
     if (isExist) throw new ApiError(409, "User already exists.");
     const avatar = await uploadOnCloud(file.path);
-    if (!avatar) {
+    if (avatar === null) {
         if (fs.existsSync(file.path)) {
             fs.unlinkSync(file.path);
         }

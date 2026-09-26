@@ -31,7 +31,7 @@ export const uploadOnCloud = async (
             return res;
         } catch (error) {
             attempt++;
-            console.log(`Upload attempt ${attempt} failed. Retrying...`);
+            console.log(`Upload attempt ${attempt} failed: ${error}`);
 
             if (attempt >= maxTries) {
                 if (fs.existsSync(filePath)) {
